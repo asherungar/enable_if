@@ -34,8 +34,11 @@ public:
 template<>
 class CheckBase<B>
 {
+protected:
+    int m_secondIndex =  -1; /// i want this member *only* if the class is B
+
 public:
-    int m_secondIndex = 1; /// i want this member *only* if the class is B
+    CheckBase(int index) : m_secondIndex(index) {}    
 
     bool is_on(B& c, int idx)
     {
@@ -44,14 +47,15 @@ public:
 };
 
 
-template <class C>
+template <class C, class... Args>
 class Check : private CheckBase<C>
 {
 protected:
     C& m_c;
 
 public:
-    Check(C& _c) :m_c(_c) {}
+    
+    Check(C& _c, Args... args) : CheckBase<C>(args...), m_c(_c) { }
 
     bool is_on(int idx) {
         return CheckBase<C>::is_on(m_c, idx);
@@ -62,9 +66,10 @@ int main()
 {
     A a;
     B b;
-    Check c(a);
-    (void)a;
-    (void)b;
+    Check<A> c(a); // this works
+    Check<B> c1(b, 1); // doesnt compile
+    Check<B> c2(b, 2); // doesnt compile
+
     if(c.is_on(0))
         std::cout << "its B!\n";
     else
