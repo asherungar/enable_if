@@ -22,13 +22,10 @@ struct B
 
 
 template<class C>
-class CheckBase;
-
-template<>
-class CheckBase<A>
+class CheckBase
 {
 public:
-    bool is_on(A& c, int idx)
+    bool is_on(C& c, int idx)
     {
         return c.configuration[idx].on;
     }
@@ -65,7 +62,7 @@ int main()
 {
     A a;
     B b;
-    Check c(b);
+    Check c(a);
     (void)a;
     (void)b;
     if(c.is_on(0))
