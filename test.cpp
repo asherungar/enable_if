@@ -47,7 +47,7 @@ public:
 };
 
 
-template <class C, class... Args>
+template <class C>
 class Check : private CheckBase<C>
 {
 protected:
@@ -55,7 +55,8 @@ protected:
 
 public:
     
-    Check(C& _c, Args... args) : CheckBase<C>(args...), m_c(_c) { }
+    template<typename... Args>
+    Check(C& _c, Args&&... args) : CheckBase<C>(std::forward<Args>(args)...), m_c(_c) { }
 
     bool is_on(int idx) {
         return CheckBase<C>::is_on(m_c, idx);
