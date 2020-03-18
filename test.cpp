@@ -20,45 +20,26 @@ struct B
     cfg configuration[2][3];
 };
 
-
-template<class C>
-class CheckBase
-{
-public:
-    bool is_on(C& c, int idx)
-    {
-        return c.configuration[idx].on;
-    }
-};
-
-template<>
-class CheckBase<B>
+template <class C, bool isMutli = false>
+class Check 
 {
 protected:
-    int m_secondIndex =  -1; /// i want this member *only* if the class is B
-
-public:
-    CheckBase(int index) : m_secondIndex(index) {}    
-
-    bool is_on(B& c, int idx)
-    {
-        return c.configuration[m_secondIndex][idx].on;
-    }
-};
-
-
-template <class C, class... Args>
-class Check : private CheckBase<C>
-{
-protected:
-    C& m_c;
+    const C& m_c;
 
 public:
     
-    Check(C& _c, Args... args) : CheckBase<C>(args...), m_c(_c) { }
+    Check(const C& c_) : m_c(c_) {}
 
     bool is_on(int idx) {
-        return CheckBase<C>::is_on(m_c, idx);
+        if constexpr ( isMutli )
+        {
+            return m_c.configuration[0][idx].on;
+        }
+        else
+        {
+            return m_c.configuration[idx].on;
+        }
+        
     }
 };
  
@@ -67,11 +48,12 @@ int main()
     A a;
     B b;
     Check<A> c(a); // this works
-    Check<B> c1(b, 1); // doesnt compile
-    Check<B> c2(b, 2); // doesnt compile
+    Check<B, true> c1(b); 
 
     if(c.is_on(0))
         std::cout << "its B!\n";
     else
         std::cout << "its A!\n";
+    c1.is_on(1);
+    
 }
